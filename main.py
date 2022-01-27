@@ -10,19 +10,27 @@ numdays = 50
 
 #Set token ids
 xcoinid = 'chainlink'
+ycoinid = 'bitcoin'
 
 #Get token data
 xcoin = cg.get_coin_market_chart_by_id(id=xcoinid, vs_currency='usd', days=numdays, interval='daily')
 
+ycoin = cg.get_coin_market_chart_by_id(id=ycoinid, vs_currency='usd', days=numdays, interval='daily')
 
 #Put prices for token into lists
 xvals = [xcoin['prices'][i][1] for i in range(len(xcoin['prices']))]
 
+yvals = [ycoin['prices'][i][1] for i in range(len(ycoin['prices']))]
+
 
 print(xvals)
+print(yvals)
+
+zvals = np.divide(xvals, yvals)
+print(zvals)
 
 
-wilder_prices = xvals
+wilder_prices = zvals
 
 # Define window length and window
 window_length = 14
