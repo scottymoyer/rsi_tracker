@@ -10,7 +10,7 @@ numdays = 50
 
 #Set token ids
 xcoinid = 'chainlink'
-ycoinid = 'bitcoin'
+ycoinid = 'oasis-network'
 
 #Get token data
 xcoin = cg.get_coin_market_chart_by_id(id=xcoinid, vs_currency='usd', days=numdays, interval='daily')
@@ -26,11 +26,10 @@ yvals = [ycoin['prices'][i][1] for i in range(len(ycoin['prices']))]
 print(xvals)
 print(yvals)
 
-zvals = np.divide(xvals, yvals)
-print(zvals)
+linkbtcvals = np.divide(xvals, yvals)
+btclinkvals = np.divide(yvals, xvals)
 
-
-wilder_prices = zvals
+wilder_prices = btclinkvals
 
 # Define window length and window
 window_length = 14
@@ -110,7 +109,7 @@ for i, price in enumerate(wilder_prices):
 print(output)
 
 # Create a new CSV file to store output data
-with open('wilder-rsi-output.csv', 'w', newline='') as file:
+with open('btclink-rsi-output.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerows(output)
 
