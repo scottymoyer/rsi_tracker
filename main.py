@@ -5,12 +5,19 @@ import csv
 from pycoingecko import CoinGeckoAPI
 cg = CoinGeckoAPI()
 
+# Inputs:
+# numdays, xcoin & ycoin / or their price data?
+
 #Set number of days and (T/F) for log scale 
-numdays = 50
+numdays = 1000
+
+#Set RSI signals
+rsisellsignal = 70
+rsibuysignal = 30
 
 #Set token ids
-xcoinid = 'chainlink'
-ycoinid = 'oasis-network'
+xcoinid = 'oasis-network'
+ycoinid = 'chainlink'
 
 #Get token data
 xcoin = cg.get_coin_market_chart_by_id(id=xcoinid, vs_currency='usd', days=numdays, interval='daily')
@@ -22,14 +29,9 @@ xvals = [xcoin['prices'][i][1] for i in range(len(xcoin['prices']))]
 
 yvals = [ycoin['prices'][i][1] for i in range(len(ycoin['prices']))]
 
+xytokenvals = np.divide(xvals, yvals)
 
-print(xvals)
-print(yvals)
-
-linkbtcvals = np.divide(xvals, yvals)
-btclinkvals = np.divide(yvals, xvals)
-
-wilder_prices = btclinkvals
+wilder_prices = xytokenvals
 
 # Define window length and window
 window_length = 14
@@ -104,14 +106,27 @@ for i, price in enumerate(wilder_prices):
   losses.pop(0)
 
   # Save Data
-  output.append([i+1, price, round(gain, 2), round(loss, 2), round(avg_gain, 2), round(avg_loss, 2), round(rsi, 2)])
+  output.append([i+1, round(price, 2), round(gain, 2), round(loss, 2), round(avg_gain, 2), round(avg_loss, 2), round(rsi, 2)])
 
-print(output)
+signals = []
+for i, x in enumerate(output):
+  if i <= window_length:
+    continue
+  if (x[6] > rsisellsignal or x[6] < rsibuysignal):
+    signals.append([x[0], x[6]])
+
+outputfilename = f'csvoutputs/{xcoinid}-{ycoinid}-rsi-output-{str(numdays)}days.csv'
 
 # Create a new CSV file to store output data
-with open('btclink-rsi-output.csv', 'w', newline='') as file:
+with open(outputfilename, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerows(output)
 
+'''
+signalsfilename = f'csvoutputs/{xcoinid}-{ycoinid}-rsi-signals-{str(numdays)}days.csv'
 
+with open(signalsfilename, 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerows(signals)
+'''
 

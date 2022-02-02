@@ -1,15 +1,8 @@
-import numpy as np
-from numpy import genfromtxt
-import pandas as pd
-import csv
-from pycoingecko import CoinGeckoAPI
-cg = CoinGeckoAPI()
+xcoinid = 'chainlink'
+ycoinid = 'bitcoin'
+numdays = 69
 
+newcoinstring = f'{xcoinid}-{ycoinid}-rsi-output-{str(numdays)}days'
+print(newcoinstring)
 
-
-# Read csv into numpy array
-wilder_data = genfromtxt('wilder-rsi-data.csv', delimiter=',')
-
-# View the Data
-print(wilder_data)
 
