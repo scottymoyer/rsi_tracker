@@ -5,33 +5,62 @@ import csv
 from pycoingecko import CoinGeckoAPI
 cg = CoinGeckoAPI()
 
+import plotcreator as pc
+import calculations
+
 # Inputs:
 # numdays, xcoin & ycoin / or their price data?
 
 #Set number of days and (T/F) for log scale 
-numdays = 1000
+numdays = 2000
 
 #Set RSI signals
 rsisellsignal = 70
 rsibuysignal = 30
 
 #Set token ids
-xcoinid = 'oasis-network'
-ycoinid = 'chainlink'
+xcoinid = 'bitcoin'
+ycoinid = 'usd'
 
 #Get token data
 xcoin = cg.get_coin_market_chart_by_id(id=xcoinid, vs_currency='usd', days=numdays, interval='daily')
 
-ycoin = cg.get_coin_market_chart_by_id(id=ycoinid, vs_currency='usd', days=numdays, interval='daily')
-
 #Put prices for token into lists
 xvals = [xcoin['prices'][i][1] for i in range(len(xcoin['prices']))]
 
-yvals = [ycoin['prices'][i][1] for i in range(len(ycoin['prices']))]
+print(xcoin['prices'])
+print(len(xcoin['prices']))
 
-xytokenvals = np.divide(xvals, yvals)
+"""
 
-wilder_prices = xytokenvals
+if ycoinid == 'usd':
+  times = [xcoin['prices'][i][0] for i in range(len(xcoin['prices']))]
+  wilder_prices = xvals
+
+else:
+  ycoin = cg.get_coin_market_chart_by_id(id=ycoinid, vs_currency='usd', days=numdays, interval='daily')
+
+  yvals = [ycoin['prices'][i][1] for i in range(len(ycoin['prices']))]
+
+  #Create x/y list and times list based on token with less data entries (newer token)
+  xy = []
+  times = []
+
+  rangeval = 0
+  if len(xvals) < len(yvals):
+    rangeval = len(xvals)
+    times = [xcoin['prices'][i][0] for i in range(len(xcoin['prices']))]
+  else:
+    rangeval = len(yvals)
+    times = [ycoin['prices'][i][0] for i in range(len(ycoin['prices']))]
+
+  for i in range(rangeval):
+    xy.append(xvals[i]/yvals[i])
+
+  #Create x/y toke price list
+  #xytokenvals = np.divide(xvals, yvals)
+
+  wilder_prices = xy
 
 # Define window length and window
 window_length = 14
@@ -122,6 +151,11 @@ with open(outputfilename, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerows(output)
 
+plotvals = [x[6] for x in output[1:]]
+pc.create_plot(times, plotvals, xcoinid, ycoinid, numdays)
+
+calculations.testing()
+
 '''
 signalsfilename = f'csvoutputs/{xcoinid}-{ycoinid}-rsi-signals-{str(numdays)}days.csv'
 
@@ -130,3 +164,4 @@ with open(signalsfilename, 'w', newline='') as file:
     writer.writerows(signals)
 '''
 
+"""
